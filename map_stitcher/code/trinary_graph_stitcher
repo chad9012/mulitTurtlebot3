@@ -1,0 +1,44 @@
+import numpy as np
+import cv2
+import yaml
+
+def load_map_yaml(yaml_file):
+    with open(yaml_file, 'r') as f:
+        map_data = yaml.safe_load(f)
+    return map_data
+
+def load_map_pgm(pgm_file):
+    return cv2.imread(pgm_file, cv2.IMREAD_UNCHANGED)
+
+def transform_map(map_data, map_image):
+    resolution = map_data['resolution']
+    origin = map_data['origin']
+    origin_x = int(abs(origin[0]) / resolution)
+    origin_y = int(abs(origin[1]) / resolution)
+    return np.roll(map_image, (origin_x, origin_y), axis=(1, 0))
+
+def merge_maps(map1, map2):
+    return np.maximum(map1, map2)
+
+def save_map_pgm(map_image, filename):
+    cv2.imwrite(filename, map_image)
+
+if __name__ == "__main__":
+    map_yaml1 = 'maps/map1.yaml'
+    map_yaml2 = 'maps/map2.yaml'
+    map_pgm1 = 'maps/map1.pgm'
+    map_pgm2 = 'maps/map2.pgm'
+    complete_map_pgm = 'complete_map/complete_map.pgm'
+
+    map_data1 = load_map_yaml(map_yaml1)
+    map_data2 = load_map_yaml(map_yaml2)
+
+    map_image1 = load_map_pgm(map_pgm1)
+    map_image2 = load_map_pgm(map_pgm2)
+
+    transformed_map1 = transform_map(map_data1, map_image1)
+    transformed_map2 = transform_map(map_data2, map_image2)
+
+    merged_map = merge_maps(transformed_map1, transformed_map2)
+
+    save_map_pgm(merged_map, complete_map_pgm)
