@@ -18,17 +18,23 @@ def transform_map(map_data, map_image):
     return np.roll(map_image, (origin_x, origin_y), axis=(1, 0))
 
 def merge_maps(map1, map2):
-    return np.maximum(map1, map2)
+    # Resize map2 to match the dimensions of map1
+    map2_resized = cv2.resize(map2, (map1.shape[1], map1.shape[0]))
+
+    # Merge the maps
+    merged_map = np.maximum(map1, map2_resized)
+    return merged_map
+
 
 def save_map_pgm(map_image, filename):
     cv2.imwrite(filename, map_image)
 
 if __name__ == "__main__":
-    map_yaml1 = 'maps/map1.yaml'
+    map_yaml1 = 'maps/map3.yaml'
     map_yaml2 = 'maps/map2.yaml'
-    map_pgm1 = 'maps/map1.pgm'
+    map_pgm1 = 'maps/map3.pgm'
     map_pgm2 = 'maps/map2.pgm'
-    complete_map_pgm = 'complete_map/complete_map.pgm'
+    complete_map_pgm = 'complete_map/complete_map2.pgm'
 
     map_data1 = load_map_yaml(map_yaml1)
     map_data2 = load_map_yaml(map_yaml2)
